@@ -1,0 +1,42 @@
+services:
+  mysqldb:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Nagasai@24
+      MYSQL_DATABASE: finhubDB
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+    networks:
+      - finhub-network
+
+  app:
+    build: .
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/finhubDB
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Nagasai@24
+      spring_security_oauth2_resourceserver_jwt_issuer_uri: http://host.docker.internal:8080/realms/Finhub
+      spring_security_oauth2_resourceserver_jwt_jwk_set_uri: http://host.docker.internal:8080/realms/Finhub/protocol/openid-connect/certs
+    networks:
+      - finhub-network
+
+volumes:
+  mysql-data:
+
+networks:
+  finhub-network:
+    driver: bridge
