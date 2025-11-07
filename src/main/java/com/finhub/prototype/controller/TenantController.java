@@ -19,7 +19,7 @@ public class TenantController {
     private final TenantService tenantService;
     private final TenantResolver tenantResolver;
 
-    @GetMapping("/{tenantId}")
+    @GetMapping("/tenants/{tenantId}")
     public ResponseEntity<Tenant> getTenantById(
             @PathVariable String tenantId,
             JwtAuthenticationToken token) {
